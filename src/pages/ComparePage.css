@@ -1,0 +1,92 @@
+.compare {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+.compare h1 {
+    font-size: 28px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.compare-sub {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 640px) {
+    .compare-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.compare-card {
+    background: #0d0d0d;
+    border: 0.5px solid #333;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.compare-card-label {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 0.75rem;
+}
+
+.compare-card input {
+    width: 100%;
+    background: #141414;
+    border: 0.5px solid #333;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #fff;
+    outline: none;
+    margin-bottom: 1rem;
+}
+
+.compare-card input:focus {
+    border-color: #555;
+}
+
+.compare-result {
+    border-top: 0.5px solid #262626;
+    padding-top: 0.75rem;
+}
+
+.compare-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #ccc;
+    margin-bottom: 6px;
+}
+
+.compare-verdict {
+    margin-top: 1.5rem;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.compare-verdict.positive {
+    background: rgba(52, 199, 89, 0.12);
+    color: #34c759;
+    border: 0.5px solid rgba(52, 199, 89, 0.3);
+}
+
+.compare-verdict.negative {
+    background: rgba(255, 107, 107, 0.12);
+    color: #ff6b6b;
+    border: 0.5px solid rgba(255, 107, 107, 0.3);
+}

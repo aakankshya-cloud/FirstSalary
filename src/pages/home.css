@@ -1,0 +1,125 @@
+.home {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 3rem;
+}
+
+.home-logo-box {
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #0a0a0a;
+}
+
+.home-logo span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.home-headline {
+  font-size: 42px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.home-sub {
+  font-size: 16px;
+  color: #888;
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 2rem;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 3rem;
+}
+
+.btn-primary {
+  background: #ffffff;
+  color: #0a0a0a;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 0.5px solid #333;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.home-divider {
+  border-top: 0.5px solid #222;
+  padding-top: 2rem;
+}
+
+.home-section-label {
+  font-size: 12px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.home-card {
+  background: #141414;
+  border: 0.5px solid #222;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.home-card-icon {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.home-card h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.home-card p {
+  font-size: 12px;
+  color: #555;
+}
+
+.home-quote {
+  font-size: 13px;
+  color: #444;
+  font-style: italic;
+  margin-top: 2rem;
+}

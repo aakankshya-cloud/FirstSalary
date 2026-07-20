@@ -1,0 +1,236 @@
+.casual {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+.casual-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 3rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+}
+
+.casual-back:hover {
+    color: #fff;
+}
+
+.casual h1 {
+    font-size: 28px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.casual-sub {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.casual-input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 3rem;
+}
+
+.casual-input-row input {
+    flex: 1;
+    background: #141414;
+    border: 0.5px solid #333;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #fff;
+    outline: none;
+}
+
+.casual-input-row input::placeholder {
+    color: #555;
+}
+
+.casual-input-row input:focus {
+    border-color: #555;
+}
+
+.btn-primary {
+    background: #ffffff;
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.casual-divider {
+    border-top: 0.5px solid #222;
+    padding-top: 2rem;
+}
+
+.casual-section-label {
+    font-size: 12px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+}
+
+.casual-group {
+    margin-bottom: 2rem;
+}
+
+.casual-group-label {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 0.75rem;
+}
+
+.casual-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.casual-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 10px 14px;
+    background: #141414;
+    border-radius: 8px;
+    border: 0.5px solid #222;
+}
+
+.casual-row span:first-child {
+    color: #888;
+}
+
+.casual-row span:last-child {
+    color: #fff;
+}
+
+.casual-row.deduction span:last-child {
+    color: #ff6b6b;
+}
+
+.casual-takehome {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.takehome-card {
+    background: #141414;
+    border: 0.5px solid #333;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.takehome-card.highlight {
+    background: #ffffff;
+}
+
+.takehome-card p:first-child {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.takehome-card.highlight p:first-child {
+    color: #888;
+}
+
+.takehome-card p:last-child {
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.takehome-card.highlight p:last-child {
+    color: #0a0a0a;
+}
+/* ============================================
+   Add these blocks to the matching existing CSS files.
+   Nothing here needs a new <link> — just paste into place.
+   ============================================ */
+
+/* --- Append to src/pages/CausalMode.css --- */
+
+.regime-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.75rem;
+}
+
+.regime-label {
+    font-size: 13px;
+    color: #888;
+}
+
+.regime-switch {
+    display: flex;
+    background: #141414;
+    border: 0.5px solid #333;
+    border-radius: 8px;
+    padding: 3px;
+}
+
+.regime-option {
+    background: none;
+    border: none;
+    color: #777;
+    font-size: 13px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.regime-option.active {
+    background: #fff;
+    color: #000;
+    font-weight: 500;
+}
+
+.regime-note {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.casual-download-btn {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+/* --- Append to src/components (or App.css) for the secondary button style, if not already present --- */
+
+.btn-secondary {
+    background: #141414;
+    border: 0.5px solid #333;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    border-color: #555;
+}
+
+/* --- Append to src/pages/SpecificMode.css --- */
+
+.specific-error {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin: 0.5rem 0 1rem;
+}
