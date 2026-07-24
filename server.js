@@ -29,6 +29,30 @@ const extractLimiter = rateLimit({
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
+// Try the primary model a couple of times with a short backoff, since 503s
+// from "high demand" are usually transient. If it's still failing after
+// retries, fall back to a second model entirely rather than giving up.
+async function generateWithFallback(prompt) {
+    const modelNames = ['gemini-3.5-flash', 'gemini-3.1-flash-lite']
+
+    for (const modelName of modelNames) {
+        const model = genAI.getGenerativeModel({ model: modelName })
+        for (let attempt = 0; attempt <= 2; attempt++) {
+            try {
+                return await model.generateContent(prompt)
+            } catch (err) {
+                const isOverloaded = err.message?.includes('503') || err.message?.includes('overloaded')
+                const isLastAttempt = attempt === 2
+                if (!isOverloaded) throw err // don't retry real errors (bad key, bad request, etc.)
+                if (isLastAttempt) break // give up on this model, try the next one in the list
+                await new Promise(resolve => setTimeout(resolve, 1500 * (attempt + 1)))
+            }
+        }
+    }
+
+    throw new Error('All models are currently overloaded. Please try again in a moment.')
+}
+
 app.get('/test', (req, res) => res.json({ ok: true }))
 
 app.post('/extract-salary', extractLimiter, async (req, res) => {
@@ -41,8 +65,6 @@ app.post('/extract-salary', extractLimiter, async (req, res) => {
         if (text.length > 20000) {
             return res.status(400).json({ error: 'That text is too long. Please shorten it and try again.' })
         }
-
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
         const prompt = `Extract salary details from this offer letter and return ONLY a JSON object with these exact fields, no extra text, no markdown, no backticks:
         {
@@ -57,7 +79,7 @@ app.post('/extract-salary', extractLimiter, async (req, res) => {
         Offer letter text:
         ${text}`
 
-        const result = await model.generateContent(prompt)
+        const result = await generateWithFallback(prompt)
         const responseText = result.response.text()
 
         // Gemini sometimes wraps JSON in ```json fences or adds stray text

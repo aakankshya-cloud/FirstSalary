@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import * as pdfjsLib from 'pdfjs-dist'
-import workerSrc from 'pdfjs-dist/build/pdf.worker.min?url'
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import Calculation from "./calculations"
 import '../pages/SpecificMode.css'
 
