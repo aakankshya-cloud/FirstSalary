@@ -53,7 +53,7 @@ firstSalary/
 ## Getting started
 
 ### Prerequisites
-- Node.js 18+
+- React.js 
 - A [Gemini API key](https://ai.google.dev/) (free tier is fine) for the offer-letter extraction feature
 
 ### Setup
