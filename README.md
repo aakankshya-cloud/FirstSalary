@@ -104,3 +104,13 @@ npm run preview
 ## License
 
 MIT — see [LICENSE](./LICENSE).
+
+## Screenshots
+<img width="800"  alt="Screenshot 2026-08-10 013008" src="https://github.com/user-attachments/assets/29be726c-8385-4828-bda0-ed29af3f10cf" />
+<img width="800"  alt="Screenshot 2026-08-10 013158" src="https://github.com/user-attachments/assets/314f69e3-e834-4042-89c7-b8f9dc42de8b" />
+<img width="800"  alt="Screenshot 2026-08-10 013204" src="https://github.com/user-attachments/assets/65a1f8c8-b729-4585-bfc7-004843b143dc" />
+<img width="800"  alt="Screenshot 2026-08-10 013253" src="https://github.com/user-attachments/assets/4af6b7be-09cc-420c-a85d-4ca21c95ce03" />
+<img width="800"  alt="Screenshot 2026-08-10 013534" src="https://github.com/user-attachments/assets/27b07e05-3888-4d51-af1e-e1e1f850f6e2" />
+<img width="800"  alt="Screenshot 2026-08-10 013542" src="https://github.com/user-attachments/assets/b03d620a-445e-43fd-9b36-d45fbfb9e33f" />
+<img width="800" alt="Screenshot 2026-08-10 013607" src="https://github.com/user-attachments/assets/bd676d56-1528-4ca7-a3f3-63b6b47ed07c" />
+
