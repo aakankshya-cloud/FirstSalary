@@ -19,6 +19,12 @@ app.use(express.json({ limit: '200kb' }))
 
 // This endpoint calls a paid Gemini API — without a limit, anyone who finds
 // the URL can hammer it and run up your bill. 20 requests / 15 min / IP.
+//
+// Known limitation: this store is in-memory (resets on server restart/redeploy)
+// and keyed by IP (so users behind shared/corporate NAT share one limit). Fine
+// for a single-instance portfolio deployment; a production version running
+// multiple instances would need a shared store (e.g. rate-limit-redis) and
+// ideally a key based on user/session rather than raw IP.
 const extractLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 20,

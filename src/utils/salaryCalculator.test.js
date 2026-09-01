@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { computeSalaryBreakdown } from "./salaryCalculator"
+import { computeSalaryBreakdown } from "./salarycalculator"
 
 describe("computeSalaryBreakdown — new regime (default)", () => {
     it("splits basic and HRA using the given percentages", () => {
@@ -51,5 +51,43 @@ describe("computeSalaryBreakdown — old regime", () => {
     it("charges tax at 30% for income well above 10L", () => {
         const result = computeSalaryBreakdown(5000000, { regime: "old" })
         expect(result.tax).toBeGreaterThan(0)
+    })
+})
+
+describe("computeSalaryBreakdown — marginal relief just above the 12L rebate", () => {
+    it("never lets tax exceed the income that exceeds the 12L threshold", () => {
+        // ₹1 of taxable income above 12L should never produce more than ₹1 of tax.
+        const result = computeSalaryBreakdown(1600000, { basicPercent: 100, hraPercent: 0, hasEmployerPF: false, hasGratuity: false })
+        // Gross - 75000 standard deduction gives Tincome; tax must not exceed (Tincome - 1200000)
+        const Tincome = result.Gross - 75000
+        expect(result.tax).toBeLessThanOrEqual(Math.max(Tincome - 1200000, 0) + 1) // +1 for floating point slack
+    })
+
+    it("take-home never drops below what it would be exactly at the 12L threshold", () => {
+        const atThreshold = computeSalaryBreakdown(1200000 + 75000, { basicPercent: 100, hraPercent: 0, hasEmployerPF: false, hasGratuity: false })
+        const justAbove = computeSalaryBreakdown(1200000 + 75000 + 500, { basicPercent: 100, hraPercent: 0, hasEmployerPF: false, hasGratuity: false })
+        expect(justAbove.inhand_y).toBeGreaterThanOrEqual(atThreshold.inhand_y)
+    })
+})
+
+describe("computeSalaryBreakdown — state-aware professional tax", () => {
+    it("defaults to ₹2,400/year when no state is given", () => {
+        const result = computeSalaryBreakdown(900000)
+        expect(result.prof_tax).toBe(2400)
+    })
+
+    it("applies ₹0 for states with no professional tax", () => {
+        const result = computeSalaryBreakdown(900000, { state: "Delhi" })
+        expect(result.prof_tax).toBe(0)
+    })
+
+    it("is case-insensitive on the state name", () => {
+        const result = computeSalaryBreakdown(900000, { state: "MAHARASHTRA" })
+        expect(result.prof_tax).toBe(2500)
+    })
+
+    it("falls back to the default for an unlisted state", () => {
+        const result = computeSalaryBreakdown(900000, { state: "Goa" })
+        expect(result.prof_tax).toBe(2400)
     })
 })

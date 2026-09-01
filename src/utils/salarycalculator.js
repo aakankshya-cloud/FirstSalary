@@ -16,7 +16,17 @@ function computeNewRegimeTax(taxableIncome) {
     if (taxableIncome > 2000000) tax += (Math.min(taxableIncome, 2400000) - 2000000) * 0.25
     if (taxableIncome > 2400000) tax += (taxableIncome - 2400000) * 0.30
 
-    if (taxableIncome <= 1200000) tax = 0
+    if (taxableIncome <= 1200000) {
+        tax = 0
+    } else {
+        // Marginal relief (Section 87A): just above the 12L rebate threshold,
+        // tax owed is capped at the amount of income that exceeds 12L, so a
+        // rupee more income can never leave you worse off than earning
+        // exactly 12L. Without this, tax jumps discontinuously at the
+        // boundary instead of phasing in smoothly.
+        const excessOverThreshold = taxableIncome - 1200000
+        tax = Math.min(tax, excessOverThreshold)
+    }
     return tax
 }
 
@@ -37,6 +47,35 @@ function computeOldRegimeTax(taxableIncome) {
     return tax
 }
 
+// Professional tax is levied by STATE governments, not the centre — it is
+// not a single national number. This is a partial lookup covering a few
+// major states; anything not listed falls back to the most common slab
+// (₹2,400/year) as a reasonable estimate. This is still a simplification:
+// some states use monthly slabs based on salary band rather than one flat
+// annual figure. Good enough for a comparison estimate, not exact for
+// every state.
+const PROFESSIONAL_TAX_BY_STATE = {
+    karnataka: 2400,
+    maharashtra: 2500,
+    'west bengal': 2400,
+    'tamil nadu': 2400,
+    telangana: 2400,
+    'andhra pradesh': 2400,
+    gujarat: 2400,
+    delhi: 0,       // no professional tax levied
+    haryana: 0,      // no professional tax levied
+    up: 0,           // no professional tax levied
+}
+const DEFAULT_PROFESSIONAL_TAX = 2400
+
+function getProfessionalTax(state) {
+    if (!state) return DEFAULT_PROFESSIONAL_TAX
+    const key = state.trim().toLowerCase()
+    return key in PROFESSIONAL_TAX_BY_STATE
+        ? PROFESSIONAL_TAX_BY_STATE[key]
+        : DEFAULT_PROFESSIONAL_TAX
+}
+
 export function computeSalaryBreakdown(ctc, options = {}) {
     const {
         basicPercent = 40,
@@ -44,6 +83,7 @@ export function computeSalaryBreakdown(ctc, options = {}) {
         hasEmployerPF = true,
         hasGratuity = true,
         regime = 'new', // 'new' | 'old'
+        state = null,   // optional — e.g. 'Karnataka'; falls back to a default estimate if omitted
     } = options
 
     const Basic = (basicPercent / 100) * ctc
@@ -54,7 +94,7 @@ export function computeSalaryBreakdown(ctc, options = {}) {
     const Special_Allowance = Math.max(ctc - balance, 0)
     const Gross = Basic + HRA + Special_Allowance
     const Employee_PF = hasEmployerPF ? (12 / 100) * Basic : 0
-    const prof_tax = 2400
+    const prof_tax = getProfessionalTax(state)
 
     const standardDeduction = regime === 'old' ? 50000 : 75000
     const Tincome = Math.max(Gross - standardDeduction, 0)
