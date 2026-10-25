@@ -1,12 +1,18 @@
 // Pure calculation logic — no React, no UI.
-// Extracted from calculations.jsx so it can be reused by CasualMode,
-// Specific mode, and the Compare page, and so it can be unit tested
-// on its own without rendering anything.
+// Updated for Tax Year / FY 2026-27 (AY 2027-28) under the Income-tax Act, 2025
+// (effective 1 April 2026). Slabs, rebate and standard deduction are unchanged
+// from FY 2025-26; the new Act only renumbered sections
+// (new regime: s.115BAC -> s.202, rebate: s.87A -> s.156, employer NPS: 80CCD(2) -> s.124/125).
 
-// --- Tax calculation, split out by regime ---
+const CESS_RATE = 0.04                 // Health & Education Cess, on tax after rebate
+const EMPLOYER_NPS_CAP_NEW = 0.14      // of Basic (+DA), new regime, all employers
+const EMPLOYER_NPS_CAP_OLD = 0.10      // of Basic (+DA), old regime, private employers
+const EMPLOYER_FUND_LIMIT = 750000     // employer PF + NPS (+ superannuation) above this is taxable
 
-// New regime (default since FY 2023-24): flat slabs, no HRA/80C deductions,
-// but taxable income up to 12L is effectively tax-free (87A rebate).
+// --- Tax calculation, split out by regime (returns tax BEFORE cess) ---
+
+// New regime (default): 0/5/10/15/20/25/30% slabs, rebate makes taxable
+// income up to 12L tax-free, with marginal relief just above 12L.
 function computeNewRegimeTax(taxableIncome) {
     let tax = 0
     if (taxableIncome > 400000) tax += (Math.min(taxableIncome, 800000) - 400000) * 0.05
@@ -16,44 +22,25 @@ function computeNewRegimeTax(taxableIncome) {
     if (taxableIncome > 2000000) tax += (Math.min(taxableIncome, 2400000) - 2000000) * 0.25
     if (taxableIncome > 2400000) tax += (taxableIncome - 2400000) * 0.30
 
-    if (taxableIncome <= 1200000) {
-        tax = 0
-    } else {
-        // Marginal relief (Section 87A): just above the 12L rebate threshold,
-        // tax owed is capped at the amount of income that exceeds 12L, so a
-        // rupee more income can never leave you worse off than earning
-        // exactly 12L. Without this, tax jumps discontinuously at the
-        // boundary instead of phasing in smoothly.
-        const excessOverThreshold = taxableIncome - 1200000
-        tax = Math.min(tax, excessOverThreshold)
-    }
-    return tax
+    if (taxableIncome <= 1200000) return 0
+    // Marginal relief: tax can't exceed the income above 12L
+    return Math.min(tax, taxableIncome - 1200000)
 }
 
-// Old regime: lower slabs but allows deductions (80C, HRA exemption, etc).
-// This is a SIMPLIFIED version — it does not model HRA exemption or 80C
-// investment deductions individually, only the flat ₹50,000 standard
-// deduction. Real old-regime tax owed will usually be lower than this if
-// the person claims HRA exemption or 80C. Good enough for a comparison
-// estimate, not a substitute for a tax filing tool.
+// Old regime: 2.5L/5L/10L slabs, rebate up to 5L taxable income.
+// SIMPLIFIED: HRA exemption, 80C, 80D, home-loan interest etc. are not modelled;
+// only standard deduction, professional tax and employer NPS (10%).
 function computeOldRegimeTax(taxableIncome) {
     let tax = 0
     if (taxableIncome > 250000) tax += (Math.min(taxableIncome, 500000) - 250000) * 0.05
     if (taxableIncome > 500000) tax += (Math.min(taxableIncome, 1000000) - 500000) * 0.20
     if (taxableIncome > 1000000) tax += (taxableIncome - 1000000) * 0.30
 
-    // Section 87A rebate — old regime, taxable income up to 5L is tax-free
     if (taxableIncome <= 500000) tax = 0
     return tax
 }
 
-// Professional tax is levied by STATE governments, not the centre — it is
-// not a single national number. This is a partial lookup covering a few
-// major states; anything not listed falls back to the most common slab
-// (₹2,400/year) as a reasonable estimate. This is still a simplification:
-// some states use monthly slabs based on salary band rather than one flat
-// annual figure. Good enough for a comparison estimate, not exact for
-// every state.
+// Professional tax is a STATE levy; partial lookup, default ₹2,400/yr.
 const PROFESSIONAL_TAX_BY_STATE = {
     karnataka: 2400,
     maharashtra: 2500,
@@ -62,9 +49,9 @@ const PROFESSIONAL_TAX_BY_STATE = {
     telangana: 2400,
     'andhra pradesh': 2400,
     gujarat: 2400,
-    delhi: 0,       // no professional tax levied
-    haryana: 0,      // no professional tax levied
-    up: 0,           // no professional tax levied
+    delhi: 0,
+    haryana: 0,
+    up: 0,
 }
 const DEFAULT_PROFESSIONAL_TAX = 2400
 
@@ -82,26 +69,47 @@ export function computeSalaryBreakdown(ctc, options = {}) {
         hraPercent = 50,
         hasEmployerPF = true,
         hasGratuity = true,
-        regime = 'new', // 'new' | 'old'
-        state = null,   // optional — e.g. 'Karnataka'; falls back to a default estimate if omitted
+        employerNPSPercent = 0, // % of Basic put into employer NPS (0 = none)
+        regime = 'new',         // 'new' | 'old'
+        state = null,
     } = options
+
+    const isOld = regime === 'old'
 
     const Basic = (basicPercent / 100) * ctc
     const HRA = (hraPercent / 100) * Basic
     const Employer_PF = hasEmployerPF ? (12 / 100) * Basic : 0
     const Gratuity = hasGratuity ? (4.81 / 100) * Basic : 0
-    const balance = Basic + HRA + Employer_PF + Gratuity
+
+    // Employer NPS is part of CTC (not paid in hand). Only the portion up to the
+    // regime cap is deductible; anything above stays taxable.
+    const Employer_NPS = (employerNPSPercent / 100) * Basic
+    const npsCap = (isOld ? EMPLOYER_NPS_CAP_OLD : EMPLOYER_NPS_CAP_NEW) * Basic
+    const npsDeductible = Math.min(Employer_NPS, npsCap)
+
+    const balance = Basic + HRA + Employer_PF + Gratuity + Employer_NPS
     const Special_Allowance = Math.max(ctc - balance, 0)
     const Gross = Basic + HRA + Special_Allowance
     const Employee_PF = hasEmployerPF ? (12 / 100) * Basic : 0
     const prof_tax = getProfessionalTax(state)
 
-    const standardDeduction = regime === 'old' ? 50000 : 75000
-    const Tincome = Math.max(Gross - standardDeduction, 0)
+    // Employer PF + NPS above ₹7.5L a year is taxable as a perquisite
+    const excessEmployerFunds = Math.max(Employer_PF + Employer_NPS - EMPLOYER_FUND_LIMIT, 0)
 
-    const tax = regime === 'old'
+    const standardDeduction = isOld ? 50000 : 75000
+    // Professional tax is deductible from salary only in the old regime
+    const ptDeduction = isOld ? prof_tax : 0
+
+    const Tincome = Math.max(
+        Gross + excessEmployerFunds - standardDeduction - ptDeduction - npsDeductible,
+        0
+    )
+
+    const taxBeforeCess = isOld
         ? computeOldRegimeTax(Tincome)
         : computeNewRegimeTax(Tincome)
+    const cess = taxBeforeCess * CESS_RATE
+    const tax = taxBeforeCess + cess
 
     const inhand_y = Gross - Employee_PF - prof_tax - tax
     const inhand_m = inhand_y / 12
@@ -110,11 +118,15 @@ export function computeSalaryBreakdown(ctc, options = {}) {
         Basic,
         HRA,
         Employer_PF,
+        Employer_NPS,
         Gratuity,
         Special_Allowance,
         Gross,
         Employee_PF,
         prof_tax,
+        taxableIncome: Tincome,
+        taxBeforeCess,
+        cess,
         tax,
         inhand_y,
         inhand_m,
